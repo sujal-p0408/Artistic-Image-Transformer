@@ -98,7 +98,7 @@ def get_image_download_link(img, filename, link_text):
     return href
 
 # Title
-st.title("🎨 Artistic Image Transformer")
+st.title("🎨 Artify")
 st.markdown("Transform your photos into stunning artistic styles")
 
 # Sidebar for controls
@@ -147,13 +147,16 @@ if uploaded_file:
     file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
     original_img = cv2.imdecode(file_bytes, 1)
     
+    # Get the original image size in bytes
+    original_size = len(uploaded_file.getvalue()) / 1024  # Convert bytes to KB
+    
     # Display original image in first column
     col1, col2 = st.columns([1, 2])
     
     with col1:
         st.markdown('<div class="image-container">', unsafe_allow_html=True)
         st.subheader("Original Image")
-        st.image(cv2.cvtColor(original_img, cv2.COLOR_BGR2RGB), use_column_width=True)
+        st.image(cv2.cvtColor(original_img, cv2.COLOR_BGR2RGB), use_container_width=True)
         st.markdown('</div>', unsafe_allow_html=True)
     
     # Process and display transformed image when generate button is clicked
@@ -165,7 +168,7 @@ if uploaded_file:
                 st.subheader("🎭 Pop Art Style")
                 with st.spinner("Generating Pop Art..."):
                     result = pop_art_style(original_img, colors, background.lower())
-                st.image(cv2.cvtColor(result, cv2.COLOR_BGR2RGB), use_column_width=True)
+                st.image(cv2.cvtColor(result, cv2.COLOR_BGR2RGB), use_container_width=True)
                 
                 # Download button
                 st.markdown(
@@ -177,7 +180,8 @@ if uploaded_file:
                 st.subheader("🖋️ Ink Splash Style")
                 with st.spinner("Creating Ink Splash Effect..."):
                     result = inksplash_style(original_img)
-                st.image(result, use_column_width=True)
+                st.image(cv2.cvtColor(result, cv2.COLOR_BGR2RGB), use_container_width=True)
+
                 
                 # Download button
                 st.markdown(
@@ -189,7 +193,8 @@ if uploaded_file:
                 st.subheader("✏️ Sketch Style")
                 with st.spinner("Creating Sketch..."):
                     result = sketch_style(original_img, intensity)
-                st.image(result, use_column_width=True)
+                st.image(cv2.cvtColor(result, cv2.COLOR_BGR2RGB), use_container_width=True)
+
                 
                 # Download button
                 st.markdown(
@@ -212,7 +217,15 @@ if uploaded_file:
                 st.subheader("🗜️ Compressed Image")
                 with st.spinner("Compressing Image..."):
                     result = compress_image_dct(original_img, quality)
-                st.image(cv2.cvtColor(result, cv2.COLOR_BGR2RGB), use_column_width=True)
+                st.image(cv2.cvtColor(result, cv2.COLOR_BGR2RGB), use_container_width=True)
+                
+                # Calculate the compressed image size
+                _, compressed_img_encoded = cv2.imencode('.png', result)
+                compressed_size = len(compressed_img_encoded) / 1024  # in KB
+                
+                # Display original and compressed size
+                st.write(f"Original Image Size: {original_size:.2f} KB")
+                st.write(f"Compressed Image Size: {compressed_size:.2f} KB")
                 
                 # Download button
                 st.markdown(
@@ -229,7 +242,7 @@ else:
     with col1:
         st.markdown('<div class="style-option">', unsafe_allow_html=True)
         st.subheader("✨ Available Styles")
-        st.markdown("""
+        st.markdown(""" 
         - **Pop Art**: Vibrant colors with halftone dots, inspired by classic pop art
         - **Ink Splash**: Artistic ink splash effect with optional color
         - **Sketch**: Pencil drawing effect with adjustable intensity
@@ -241,7 +254,7 @@ else:
     with col2:
         st.markdown('<div class="style-option">', unsafe_allow_html=True)
         st.subheader("🚀 How It Works")
-        st.markdown("""
+        st.markdown(""" 
         1. Upload your image using the sidebar
         2. Select your desired artistic style
         3. Adjust the style-specific settings
